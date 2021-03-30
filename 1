@@ -1,0 +1,45 @@
+# import biblioteki OpenCV
+import cv2
+import numpy as np
+import os
+ 
+# pobranie wszystkich zdjęć z folderu images
+fileList=os.listdir('images')
+for filePath in fileList[:]: # filelist[:] makes a copy of filelist.
+    if not(filePath.endswith(".jpg")):
+        fileList.remove(filePath)
+ 
+# stworzenie kaskad Haara
+faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_alt2.xml')
+ 
+# fileList zawiera wszystkie obrazy z rozszerzeniem jpg
+cv2Images_before = []
+cv2Images_after = []
+ 
+# detekcja twarzy dla każdego zdjęcia
+for imagePath in fileList:
+    image_before = cv2.imread('images/'+imagePath)
+    cv2Images_before.append(image_before)
+    image_after = cv2.imread('images/'+imagePath)
+    cv2Images_after.append(image_after)
+ 
+    # konwersja zdjęcia do skali szarości
+    gray = cv2.cvtColor(image_after, cv2.COLOR_BGR2GRAY)
+ 
+    # detekcja twarzy
+    faces = faceCascade.detectMultiScale(
+    gray,
+    scaleFactor=1.1,
+    minNeighbors=5,
+    minSize=(30, 30)
+    )
+ 
+    # zaznaczenie odnalezionych twarzy
+    for (x, y, w, h) in faces:
+        cv2.rectangle(image_after, (x, y), (x + w, y + h), (0, 255, 0), 2)
+ 
+ 
+for imageIndex in range(0, len(cv2Images_before)):
+    imgConcate = np.concatenate((cv2Images_before[imageIndex], cv2Images_after[imageIndex]), axis=1)
+    cv2.imshow("Znaleziona twarz", imgConcate)
+    cv2.waitKey(0)
